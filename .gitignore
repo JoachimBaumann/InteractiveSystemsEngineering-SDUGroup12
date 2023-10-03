@@ -1,0 +1,19 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+
+# React.js build output
+/build/
+
+# Environment files
+.env
+
+# IDE directories
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*.bak
