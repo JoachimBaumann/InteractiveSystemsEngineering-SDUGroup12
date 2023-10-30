@@ -4,6 +4,11 @@ body {
 }
 
 canvas#myChart {
+	max-height: 500px;
 	max-width: 400px;
-	margin: 20px auto;
+	margin: 0 auto;
+}
+
+.container {
+	padding-top: 0;
 }
