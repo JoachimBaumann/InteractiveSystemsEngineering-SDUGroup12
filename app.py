@@ -58,7 +58,11 @@ def add_expense():
     amount = request.form["amount"]
     name = request.form["name"]
     currency = request.form["currency"]
-    recurring = request.form["recurring"]
+  # Check if "recurring" key exists in the form data
+    recurring = request.form.get("recurring", None)
+
+# If it doesn't exist, recurring will be None or you can set a default value
+
     date_str = request.form.get("date")
     date = datetime.strptime(date_str, "%Y-%m-%d") if date_str else datetime.utcnow()
 
