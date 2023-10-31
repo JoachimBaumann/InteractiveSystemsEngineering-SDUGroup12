@@ -5,24 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    		<!-- Bootstrap CSS -->
-	<link rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="navbar">
-        <a href="#" class="logo">Monbud</a>
+        <a href="{{ url_for('home') }}" class="logo">Monbud</a>
         <div class="nav-links">
-            <a href="#">Categories</a>
-            <a href="#">Overview</a>
-            <a href="#">Expenses</a>
+            <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('overview') }}">Overview</a>
+            <a href="{{ url_for('expenses') }}">Expenses</a>
         </div>
-        <a href="#" class="logo">Logout</a>
+        <a href="{{ url_for('logout') }}" class="logo">Logout</a>
     </div>
-
-    <div class="content">
+    
+    
         {% block content %}
         {% endblock %}
-    </div>
+
 </body>
 </html>
