@@ -9,13 +9,16 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="{{ url_for('hello') }}">Home</a>
-        <a href="{{ url_for('overview') }}">Overview</a>
-        <a href="{{ url_for('categories') }}">Categories</a>
-        <a href="{{ url_for('login') }}">Login</a>
+        <a href="#" class="logo">Monbud</a>
+        <div class="nav-links">
+            <a href="#">Categories</a>
+            <a href="#">Overview</a>
+            <a href="#">Expenses</a>
+        </div>
+        <a href="#" class="logo">Your profile</a>
     </div>
 
-    <div class="content">
+    <div class="">
         {% block content %}
         {% endblock %}
     </div>

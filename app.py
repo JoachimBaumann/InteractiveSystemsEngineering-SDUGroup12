@@ -10,9 +10,12 @@ app.secret_key = "some_random_string_here"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///site.db"
 db = SQLAlchemy(app)
 
-
 @app.route("/")
-def hello():
+def home():
+    return render_template("home.html") 
+
+@app.route("/expenses")
+def expenses():
     expenses = Expense.query.all()
     return render_template("index.html", expenses=expenses)
 

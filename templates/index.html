@@ -1,23 +1,8 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>MyBudgetApp</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends 'base.html' %}
 
+{% block title %}MyBudgetApp{% endblock %}
 
-		<!-- Bootstrap CSS -->
-		<link
-			rel="stylesheet"
-			href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-		/>
-
-		<!-- Your additional styles -->
-		<link
-			rel="stylesheet"
-			href="{{ url_for('static', filename='styles.css') }}"
-		/>
-	</head>
-	<body>
+{% block content %}
 		<div class="container-fluid">
 			{% with messages = get_flashed_messages(with_categories=true) %} {%
 			if messages %} {% for category, message in messages %}
@@ -187,5 +172,4 @@
 				})
 			})
 		</script>
-	</body>
-</html>
+{% endblock %}
