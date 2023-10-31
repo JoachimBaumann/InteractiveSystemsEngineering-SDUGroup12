@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import jsonify
 from sqlalchemy.sql import func
 
+
 app = Flask(__name__)
 app.secret_key = "some_random_string_here"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///site.db"
@@ -14,6 +15,24 @@ db = SQLAlchemy(app)
 def hello():
     expenses = Expense.query.all()
     return render_template("index.html", expenses=expenses)
+
+
+@app.route("/overview")
+def overview():
+    # Add logic to fetch and pass data to the template if needed
+    return render_template("overview.html")
+
+@app.route("/categories")
+def categories():
+    # Add logic to fetch and pass data to the template if needed
+    return render_template("categories.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        # Add logic to handle login (authentication)
+        pass
+    return render_template("login.html")
 
 
 class Expense(db.Model):
