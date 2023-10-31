@@ -91,6 +91,16 @@ body, h1, a {
 .navbar {
     overflow: hidden;
     background-color: #333;
+    position: fixed; /* Fixed position */
+    top: 0; /* Stay at the top */
+    width: 100%; /* Full width */
+    z-index: 1000; /* Stay on top of other elements */
+}
+
+/* Main content */
+.content {
+    padding: 16px;
+    padding-top: 50px; /* Add padding to the top to avoid content being hidden behind the navbar */
 }
 
 /* Navigation links */
