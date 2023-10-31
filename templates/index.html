@@ -2,6 +2,8 @@
 <html>
 	<head>
 		<title>MyBudgetApp</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
 
 		<!-- Bootstrap CSS -->
 		<link
@@ -16,7 +18,7 @@
 		/>
 	</head>
 	<body>
-		<div class="container">
+		<div class="container-fluid">
 			{% with messages = get_flashed_messages(with_categories=true) %} {%
 			if messages %} {% for category, message in messages %}
 			<div class="alert alert-{{ category }}">{{ message }}</div>
@@ -24,59 +26,114 @@
 
 			<!-- Your content goes here -->
 
-			<!-- Place for charts -->
-			<canvas id="myChart"></canvas>
+			<div class="row">
 
-			<!-- Input for date picker -->
-
-			<input
-				type="text"
-				id="datepicker"
-				name="date"
-				placeholder="Select Date"
-			/>
-
-			<form action="/add_expense" method="post">
-				Category:
-				<select name="category">
-					<option value="Food">Food</option>
-					<option value="Transport">Transport</option>
-					<option value="Entertainment">Entertainment</option>
-					<option value="Utilities">Utilities</option>
-					<!-- Add more categories as needed -->
+				<div class="mt-5 col-md-6">
+					<h2 class="text-center my-4">Add new expense</h2>
+					<div class="card p-4">
+						<form action="/add_expense" method="post" class="text-center">
+							<div class="form-group">
+								<label for="budget">Budget</label>
+								<select class="form-control" id="budget" name="category">
+									<option value="Food">Food</option>
+									<option value="Transport">Transport</option>
+									<option value="Entertainment">Entertainment</option>
+									<option value="Utilities">Utilities</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="name">Name</label>
+								<input type="text" class="form-control" id="name" placeholder="Monster Energy" name="name">
+							</div>
+							<div class="form-group">
+								<label for="amount">Amount</label>
+								<input type="number" class="form-control" id="amount" placeholder="14 kr" name="amount">
+							</div>
+							<div class="form-group">
+								<label for="currency">Currency</label>
+								<select class="form-control" id="currency" name="currency">
+									<option value="DKK">Danish Kroner</option>
+									<option value="EU">Euro</option>
+									<option value="dollar">Dollar</option>
+									<!-- Add more currencies as needed -->
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="expenseDate">Date</label>
+								<input type="date" id="expenseDate" name="Date">
+							</div>
+							<div class="form-group row">
+								<label class="col-sm-4 col-form-label">Recurring Payment:</label>
+								<div class="col-sm-8">
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" id="yes" name="recurring" value="Yes">
+										<label class="form-check-label" for="yes">Yes</label>
+									</div>
+									<div class="form-check form-check-inline">
+										<input class="form-check-input" type="radio" id="no" name="recurring" value="No">
+										<label class="form-check-label" for="no">No</label>
+									</div>
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<input type="submit" value="Submit" class="btn btn-primary">
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<canvas id="myChart"></canvas>
+				</div>
+			</div>
+			
+			<h2 class="text-center my-4">Per category history</h2>
+			<div class="mb-4">
+				<label for="select-category" class="d-block text-center mb-2">Category</label>
+				<select class="form-control" id="select-category">
+					<!-- example option -->
+					<option>All</option>
+					<option>Food</option>
+					<option>Entertainment</option>
 				</select>
-				<br />
-
-				Amount: <input type="number" name="amount" /><br />
-				<input type="submit" value="Add Expense" />
-			</form>
-
+			</div>
+			
 			<table class="table">
 				<thead>
 					<tr>
+						<th>Name</th> <!-- New column for Expense Name -->
 						<th>Category</th>
 						<th>Amount</th>
+						<th>Currency</th> <!-- New column for Currency -->
 						<th>Date</th>
+						<th>Recurring</th> <!-- New column for Recurring Payment -->
+						<th>Action</th> <!-- To label the delete button column -->
 					</tr>
 				</thead>
+				
 				<tbody>
 					{% for expense in expenses %}
 					<tr>
+						<td>{{ expense.name }}</td> <!-- New column for Expense Name -->
 						<td>{{ expense.category }}</td>
 						<td>{{ expense.amount }}</td>
+						<td>{{ expense.currency }}</td> <!-- New column for Currency -->
 						<td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+						<td>{{ expense.recurring }}</td> <!-- New column for Recurring Payment -->
 						<td>
-							<form
-								action="{{ url_for('delete_expense', id=expense.id) }}"
-								method="post"
-							>
+							<form action="{{ url_for('delete_expense', id=expense.id) }}" method="post">
 								<button type="submit">Delete</button>
 							</form>
 						</td>
 					</tr>
 					{% endfor %}
 				</tbody>
+				
 			</table>
+			<div class="text-center mt-4">
+				<button class="btn btn-primary">Load more</button>
+			</div>
+			
 		</div>
 
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

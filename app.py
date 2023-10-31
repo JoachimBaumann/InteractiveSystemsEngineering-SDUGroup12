@@ -21,6 +21,10 @@ class Expense(db.Model):
     category = db.Column(db.String(80), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    name = db.Column(db.String(120), nullable=False)  # Name of the expense
+    currency = db.Column(db.String(10), nullable=True)  # Currency (you might want to set a default value)
+    recurring = db.Column(db.String(5), nullable=True)  # 'Yes' or 'No' for recurring
+    
 
     def __repr__(self):
         return f"Expense('{self.category}', '{self.amount}', '{self.date}')"
@@ -52,15 +56,19 @@ def expense_data():
 def add_expense():
     category = request.form["category"]
     amount = request.form["amount"]
+    name = request.form["name"]
+    currency = request.form["currency"]
+    recurring = request.form["recurring"]
     date_str = request.form.get("date")
     date = datetime.strptime(date_str, "%Y-%m-%d") if date_str else datetime.utcnow()
 
-    expense = Expense(category=category, amount=amount, date=date)
+    expense = Expense(name=name, currency=currency, recurring=recurring, category=category, amount=amount, date=date)
     db.session.add(expense)
     db.session.commit()
 
     flash("Expense added successfully!", "success")
     return redirect(url_for("hello"))
+
 
 
 if __name__ == "__main__":
