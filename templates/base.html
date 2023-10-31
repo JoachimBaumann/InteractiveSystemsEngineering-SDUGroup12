@@ -10,14 +10,16 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="#" class="logo">Monbud</a>
+        <a href="{{ url_for('home') }}" class="logo">Monbud</a>
         <div class="nav-links">
-            <a href="#">Categories</a>
-            <a href="#">Overview</a>
-            <a href="#">Expenses</a>
+            <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('overview') }}">Overview</a>
+            <a href="{{ url_for('expenses') }}">Expenses</a>
         </div>
-        <a href="#" class="logo">Your profile</a>
+        <a href="{{ url_for('logout') }}" class="logo">Logout</a>
     </div>
+    
+    
         {% block content %}
         {% endblock %}
 

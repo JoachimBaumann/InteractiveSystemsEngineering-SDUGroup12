@@ -37,6 +37,14 @@ def login():
         pass
     return render_template("login.html")
 
+@app.route('/logout')
+def logout():
+    # Your logout logic here
+    # For example, if using Flask-Login:
+    # logout_user()
+    return redirect(url_for('home'))
+
+
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
