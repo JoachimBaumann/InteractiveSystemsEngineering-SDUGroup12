@@ -19,10 +19,6 @@ def overview():
     # Add logic to fetch and pass data to the template if needed
     return render_template("overview.html")
 
-@app.route("/categories")
-def categories():
-    # Add logic to fetch and pass data to the template if needed
-    return render_template("categories.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -39,29 +35,47 @@ def logout():
     return redirect(url_for('home'))
 
 
+
+## CATEGORIES ##
+
+@app.route("/categories")
+def categories():
+    categories = Category.query.order_by(Category.priority).all()
+    return render_template("categories.html", categories=categories)
+
+
 @app.route("/get_categories", methods=["GET"])
 def get_categories():
     categories = Category.query.order_by(Category.priority).all()
     return jsonify(categories=[category.serialize for category in categories])  
 
-@app.route("/edit_category/<int:id>", methods=["POST"])
-def edit_category(id):
-    category = Category.query.get_or_404(id)
-    budget = request.form.get("budget")
-    if budget:
-        category.budget = budget
-        db.session.commit()
-        flash("Category updated successfully!", "success")
-        return redirect(url_for("categories"))
-    else:
-        return "Error", 400
+@app.route("/edit_category", methods=["POST"])
+def edit_category():
+    data = request.get_json()
+    category_id = data.get('id')
+    field = data.get('field')
+    new_value = data.get(field)
+    
+    category = Category.query.get_or_404(category_id)
+    if field == 'name':
+        category.name = new_value
+    elif field == 'budget':
+        category.budget = new_value
+    db.session.commit()
+    
+    return jsonify({'success': True})
+
+
 
 @app.route("/add_category", methods=["POST"])
 def add_category():
     name = request.form.get("name")
     budget = request.form.get("budget")
+    # Assign the next priority
+    max_priority = db.session.query(db.func.max(Category.priority)).scalar() or 0
     if name and budget:
-        category = Category(name=name, budget=budget)
+        currency = request.form.get("currency")
+        category = Category(name=name, budget=budget, currency=currency, priority=max_priority+1)
         db.session.add(category)
         db.session.commit()
         flash("Category added successfully!", "success")
@@ -81,6 +95,22 @@ def reorder_categories():
         return redirect(url_for("categories"))
     else:
         return "Error", 400
+    
+@app.route("/delete_category", methods=["POST"])
+def delete_category():
+    data = request.get_json()
+    category_id = data.get('id')
+    
+    category = Category.query.get_or_404(category_id)
+    db.session.delete(category)
+    db.session.commit()
+    
+    return jsonify({'success': True})
+
+
+
+
+
 
 @app.route("/delete_expense/<int:id>", methods=["POST"])
 def delete_expense(id):

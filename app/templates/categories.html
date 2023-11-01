@@ -3,35 +3,167 @@
 {% block title %}Categories{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <!-- Welcome Header -->
-        <h2>Hello Jacob,</h2>
-        <p>here is your budget goals</p>
+<div class="container mt-4 mb-4">
+    <h2 class="text-center">Hello Jacob,</h2>
+    <p class="text-center">Here are your budget goals:</p>
 
-        <!-- Table for displaying budget categories -->
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th></th> <!-- For the icon -->
-                    <th>Type</th>
-                    <th>Budget</th>
-                    <th>Action</th> <!-- For the delete button -->
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td><img src="path_to_food_icon" alt="Food Icon"></td>
-                    <td>Food</td>
-                    <td>500 kr</td>
-                    <td><button class="btn btn-danger">Delete</button></td>
-                </tr>
-                <!-- You can replicate the above row for other categories -->
-            </tbody>
-        </table>
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Budget</th>
+                <th>Currency</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>{{ category.priority }}</td>
+                <td data-id="{{ category.id }}" data-field="name" class="editable">{{ category.name }}</td>
+                <td data-id="{{ category.id }}" data-field="budget" class="editable">{{ category.budget }}</td>
+                <td data-id="{{ category.id }}" data-field="currency" class="editable-select">{{ category.currency }}</td>
+                <td>
+                    <button type="button" class="btn btn-danger delete-btn" data-id="{{ category.id }}">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <!-- Create button -->
-        <button class="btn btn-primary">Create</button>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Add New Category</h5>
+            <form action="{{ url_for('add_category') }}" method="post">
+                <div class="form-group">
+                    <label for="name">Category Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="budget">Budget:</label>
+                    <input type="number" id="budget" name="budget" required>
+                </div>
+                <div class="form-group">
+                    <label for="currency">Currency:</label>
+                    <select id="currency" name="currency">
+                        <option value="DKK">DKK</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                    </select>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Save" class="btn btn-primary">
+                </div>
+            </form>
+        </div>
     </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categoriesTable = document.querySelector('.table');
+
+        function sendUpdateRequest(categoryId, field, newValue, onSuccess, onError) {
+            fetch('{{ url_for("edit_category") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: categoryId, [field]: newValue }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    onSuccess();
+                } else {
+                    onError();
+                }
+            })
+            .catch(() => onError());
+        }
+
+        function handleInlineEditing(event) {
+            const cell = event.target;
+            const categoryId = cell.dataset.id;
+            const field = cell.dataset.field;
+            const originalContent = cell.textContent.trim();
+            const actionButton = cell.closest('tr').querySelector('.delete-btn');
+
+            actionButton.textContent = 'Update';
+            actionButton.classList.replace('btn-danger', 'btn-primary');
+
+            cell.contentEditable = true;
+            cell.focus();
+
+            function revertUIChanges() {
+                cell.contentEditable = false;
+                actionButton.textContent = 'Delete';
+                actionButton.classList.replace('btn-primary', 'btn-danger');
+            }
+
+            function handleUpdate() {
+                const newContent = cell.textContent.trim();
+                if (newContent !== originalContent) {
+                    sendUpdateRequest(categoryId, field, newContent, revertUIChanges, () => {
+                        alert('There was an error updating the category.');
+                        cell.textContent = originalContent;
+                        revertUIChanges();
+                    });
+                } else {
+                    revertUIChanges();
+                }
+            }
+
+            actionButton.onclick = handleUpdate;
+
+            cell.addEventListener('blur', handleUpdate, { once: true });
+            cell.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    cell.blur();
+                }
+            });
+        }
+
+        function handleCategoryDeletion(event) {
+            const button = event.target;
+            const categoryId = button.dataset.id;
+
+            if (confirm('Are you sure you want to delete this category?')) {
+                sendUpdateRequest(categoryId, null, null, () => {
+                    button.closest('tr').remove();
+                }, () => {
+                    alert('There was an error deleting the category.');
+                });
+            }
+        }
+
+        categoriesTable.addEventListener('dblclick', function (event) {
+            if (event.target.classList.contains('editable')) {
+                handleInlineEditing(event);
+            }
+        });
+
+        categoriesTable.addEventListener('click', function (event) {
+            if (event.target.classList.contains('delete-btn')) {
+                handleCategoryDeletion(event);
+            }
+        });
+
+        categoriesTable.addEventListener('change', function (event) {
+            if (event.target.classList.contains('editable-select')) {
+                const select = event.target;
+                const categoryId = select.dataset.id;
+                const field = select.dataset.field;
+                const newContent = select.value;
+
+                sendUpdateRequest(categoryId, field, newContent, () => {}, () => {
+                    alert('There was an error updating the category.');
+                });
+            }
+        });
+    });
+</script>
+
 {% endblock %}

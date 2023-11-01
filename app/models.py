@@ -19,10 +19,21 @@ class Category(db.Model):
     name = db.Column(db.String(80), nullable=False)
     budget = db.Column(db.Float, nullable=False)
     priority = db.Column(db.Integer, nullable=True)
+    currency = db.Column(db.String(10), nullable=True)  # Currency (you might want to set a default value)
+
+
+    def __init__(self, name, budget, currency, priority=None):
+        self.name = name
+        self.budget = budget
+        self.currency = currency
+        self.priority = priority
 
 Category.serialize = property(lambda self: {
     "id": self.id,
     "name": self.name,
     "budget": self.budget,
+    "currency": self.currency,  # Add this line
     "priority": self.priority
 })
+
+
