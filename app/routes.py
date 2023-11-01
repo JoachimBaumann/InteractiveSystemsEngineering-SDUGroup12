@@ -1,14 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from flask import jsonify
+from flask import render_template, request, redirect, url_for, flash, jsonify
+from app import app, db
+from app.models import Expense, Category
 from sqlalchemy.sql import func
-
-
-app = Flask(__name__)
-app.secret_key = "some_random_string_here"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///site.db"
-db = SQLAlchemy(app)
+from datetime import datetime
 
 @app.route("/")
 def home():
@@ -45,20 +39,48 @@ def logout():
     return redirect(url_for('home'))
 
 
+@app.route("/get_categories", methods=["GET"])
+def get_categories():
+    categories = Category.query.order_by(Category.priority).all()
+    return jsonify(categories=[category.serialize for category in categories])  
 
-class Expense(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(80), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    name = db.Column(db.String(120), nullable=False)  # Name of the expense
-    currency = db.Column(db.String(10), nullable=True)  # Currency (you might want to set a default value)
-    recurring = db.Column(db.String(5), nullable=True)  # 'Yes' or 'No' for recurring
-    
+@app.route("/edit_category/<int:id>", methods=["POST"])
+def edit_category(id):
+    category = Category.query.get_or_404(id)
+    budget = request.form.get("budget")
+    if budget:
+        category.budget = budget
+        db.session.commit()
+        flash("Category updated successfully!", "success")
+        return redirect(url_for("categories"))
+    else:
+        return "Error", 400
 
-    def __repr__(self):
-        return f"Expense('{self.category}', '{self.amount}', '{self.date}')"
+@app.route("/add_category", methods=["POST"])
+def add_category():
+    name = request.form.get("name")
+    budget = request.form.get("budget")
+    if name and budget:
+        category = Category(name=name, budget=budget)
+        db.session.add(category)
+        db.session.commit()
+        flash("Category added successfully!", "success")
+        return redirect(url_for("categories"))
+    else:
+        return "Error", 400
 
+@app.route("/reorder_categories", methods=["POST"])
+def reorder_categories():
+    order = request.form.getlist("order[]")
+    if order:
+        for index, id in enumerate(order, 1):
+            category = Category.query.get(id)
+            category.priority = index
+        db.session.commit()
+        flash("Categories reordered successfully!", "success")
+        return redirect(url_for("categories"))
+    else:
+        return "Error", 400
 
 @app.route("/delete_expense/<int:id>", methods=["POST"])
 def delete_expense(id):
@@ -66,7 +88,7 @@ def delete_expense(id):
     db.session.delete(expense)
     db.session.commit()
     flash("Expense deleted successfully!", "success")
-    return redirect(url_for("hello"))
+    return redirect(url_for("expenses"))
 
 
 @app.route("/expense_data", methods=["GET"])
@@ -101,9 +123,4 @@ def add_expense():
     db.session.commit()
 
     flash("Expense added successfully!", "success")
-    return redirect(url_for("hello"))
-
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return redirect(url_for("expenses"))
