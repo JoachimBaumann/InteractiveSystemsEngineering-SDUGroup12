@@ -3,7 +3,35 @@
 {% block title %}Categories{% endblock %}
 
 {% block content %}
-    <h1>Categories</h1>
-    <!-- Add your content here -->
-{% endblock %}
+    <div class="container">
+        <!-- Welcome Header -->
+        <h2>Hello Jacob,</h2>
+        <p>here is your budget goals</p>
 
+        <!-- Table for displaying budget categories -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th></th> <!-- For the icon -->
+                    <th>Type</th>
+                    <th>Budget</th>
+                    <th>Action</th> <!-- For the delete button -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><img src="path_to_food_icon" alt="Food Icon"></td>
+                    <td>Food</td>
+                    <td>500 kr</td>
+                    <td><button class="btn btn-danger">Delete</button></td>
+                </tr>
+                <!-- You can replicate the above row for other categories -->
+            </tbody>
+        </table>
+
+        <!-- Create button -->
+        <button class="btn btn-primary">Create</button>
+    </div>
+{% endblock %}
