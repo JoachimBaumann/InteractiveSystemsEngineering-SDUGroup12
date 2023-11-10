@@ -1,9 +1,98 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Monbud</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
-{% block title %}Login{% endblock %}
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Monbud Logo" class="login-logo">
+        </div>
+        
+        <div class="content-container">
+            <h1>Welcome back to Monbud, your digital budget tool</h1>
+            <p>Login with your preferred provider</p>
+            <div class="login-buttons">
+                <button>Google</button>
+                <button>Github</button>
+            </div>
+        </div>
+    </div>
 
-{% block content %}
-    <h1>Overview</h1>
-    <!-- Add your content here -->
-{% endblock %}
+    <!-- Custom Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyAJavSkaW4j2beBqP_uAg_NKcUW2kD_pjU",
+                authDomain: "budget-app-g12.firebaseapp.com",
+                projectId: "budget-app-g12",
+                storageBucket: "budget-app-g12.appspot.com",
+                messagingSenderId: "873244081221",
+                appId: "1:873244081221:web:0505fe35cc0df7a9a3b72c",
+                measurementId: "G-M506H6WZGS"
+            };
+    
+            // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
 
+        // Initialize GitHub provider
+        const githubProvider = new firebase.auth.GithubAuthProvider();
+        // Force GitHub to always prompt for credentials
+        githubProvider.setCustomParameters({
+            allow_signup: 'true'
+        });
+
+        document.querySelector(".login-buttons button:nth-child(2)").addEventListener("click", function() {
+            firebase.auth().signInWithRedirect(githubProvider);
+        });
+
+                // Force account selection every time user tries to sign in
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
+                // Check the redirect result after coming back from the auth process
+        auth.getRedirectResult().then(function(result) {
+            if (result.credential) {
+                // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+                let token = result.credential.accessToken;
+                // Now you can use the token to access GitHub API if needed
+            }
+            let user = result.user;
+            if (user) {
+                // User is signed in, you can redirect or update UI accordingly
+                window.location.href = "/overview"; 
+            }
+        }).catch(function(error) {
+            // Handle any error that occurred during the sign-in process
+            console.error("Error with redirect:", error);
+            alert(error.message);
+        });
+
+
+        document.querySelector(".login-buttons button:nth-child(1)").addEventListener("click", function() {
+            // Try signing in with Google using a Popup
+            auth.signInWithPopup(googleProvider).then(function(result) {
+                // Successful authentication, redirect to overview
+                window.location.href = "/overview"; 
+            }).catch(function(error) {
+                console.error("Error signing in:", error);
+                alert(error.message);
+        });
+    });
+        });
+        
+    </script>
+</body>
+</html>

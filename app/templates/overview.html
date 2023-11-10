@@ -3,7 +3,59 @@
 {% block title %}Overview{% endblock %}
 
 {% block content %}
-    <h1>Overview</h1>
-    <!-- Add your content here -->
+    
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview - Budget App</title>
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="{{ url_for('static', filename='overview.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="overview-container">
+        <h2>Overview</h2>
+        <!-- overview.html -->
+
+        <div class="overview-header">
+            <label for="category-select">Category:</label>
+            <select name="category" id="category-dropdown">
+                <option value="all">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        
+            <label for="from-date">From:</label>
+            <input type="date" id="from-date" name="from">
+        
+            <label for="to-date">To:</label>
+            <input type="date" id="to-date" name="to">
+        </div>
+  
+        
+        <div class="summary">
+            <div>Budget: <span id="budget">--</span> ↑</div>
+            <div>Expenses: <span id="expenses">--</span> ↓</div>
+            <div>Remainder: <span id="remainder">--</span> →</div>
+
+        </div>
+        
+        <div class="graphs">
+            <!-- In progress spending chart -->
+            <canvas id="inProgressSpendingChart" width="400" height="400"></canvas>
+
+            <!-- Forecast spending chart -->
+            <canvas id="forecastSpendingChart" width="400" height="400"></canvas>
+
+        </div>
+    </div>
+
+</body>
+</html>
+
 {% endblock %}
 

@@ -3,7 +3,7 @@ from datetime import datetime
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(80), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     name = db.Column(db.String(120), nullable=False)  # Name of the expense
@@ -12,14 +12,16 @@ class Expense(db.Model):
     
 
     def __repr__(self):
-        return f"Expense('{self.category}', '{self.amount}', '{self.date}')"
+        return f"Expense('{self.category_id}', '{self.amount}', '{self.date}')"
+
     
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     budget = db.Column(db.Float, nullable=False)
     priority = db.Column(db.Integer, nullable=True)
-    currency = db.Column(db.String(10), nullable=True)  # Currency (you might want to set a default value)
+    currency = db.Column(db.String(10), nullable=True, default="DKK")  # Currency (you might want to set a default value)
+    expenses = db.relationship('Expense', backref='category', lazy=True)
 
 
     def __init__(self, name, budget, currency, priority=None):

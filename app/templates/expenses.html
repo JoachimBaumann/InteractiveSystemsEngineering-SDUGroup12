@@ -4,10 +4,14 @@
 
 {% block content %}
 		<div class="container-fluid">
-			{% with messages = get_flashed_messages(with_categories=true) %} {%
-			if messages %} {% for category, message in messages %}
-			<div class="alert alert-{{ category }}">{{ message }}</div>
-			{% endfor %} {% endif %} {% endwith %}
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+			  {% for category, message in messages %}
+				<div class="alert alert-{{ category }}">{{ message }}</div>
+			  {% endfor %}
+			{% endif %}
+		  {% endwith %}
+		  
 
 			<!-- Your content goes here -->
 
@@ -18,13 +22,13 @@
 						<div class="card p-4">
 							<form action="/add_expense" method="post" class="text-center">
 								<div class="form-group">
-									<label for="budget">Budget</label>
-									<select class="form-control" id="budget" name="category">
-										<option value="Food">Food</option>
-										<option value="Transport">Transport</option>
-										<option value="Entertainment">Entertainment</option>
-										<option value="Utilities">Utilities</option>
+									<label for="budget">Category</label>
+									<select name="category" id="category-dropdown">
+										{% for category in categories %}
+										<option value="{{ category.id }}">{{ category.name }}</option>
+										{% endfor %}
 									</select>
+									  
 								</div>
 								<div class="form-group">
 									<label for="name">Name</label>
@@ -45,7 +49,7 @@
 								</div>
 								<div class="form-group">
 									<label for="expenseDate">Date</label>
-									<input type="date" id="expenseDate" name="Date" required>
+									<input type="date" name="Date" required>
 								</div>
 								<div class="form-group row">
 									<label class="col-sm-4 col-form-label">Recurring Payment:</label>
@@ -75,17 +79,15 @@
 				<h2 class="text-center my-4">Per category history</h2>
 				<div class="mb-4">
 					<label for="select-category" class="d-block text-center mb-2">Category</label>
-					<select class="form-control" id="select-category" onchange="filterByCategory()">
-						<!-- example option -->
-						<option>All</option>
-						<option>Food</option>
-						<option>Entertainment</option>
-						<option>Transport</option>
-						<option>Utilities</option>
-					</select>
+					<select name="category" id="filter-category-dropdown" onchange="filterByCategory()">
+						<option value="all">All Categories</option>
+						{% for category in categories %}
+						<option value="{{ category.id }}">{{ category.name }}</option>
+						{% endfor %}
+					  </select>
 				</div>
 			
-				<table class="table">
+				<table class="table-expenses" id="expense-table">
 					<thead>
 						<tr>
 							<th>Name</th> <!-- New column for Expense Name -->
@@ -98,28 +100,27 @@
 						</tr>
 					</thead>
 					
-					<tbody id="expense-table">
+					<tbody>
 						{% for expense in expenses %}
-						<tr>
-							<td>{{ expense.name }}</td> <!-- New column for Expense Name -->
-							<td>{{ expense.category }}</td>
+						<tr data-category-id="{{ expense.category.id }}">
+							<td>{{ expense.name }}</td> <!-- Expense Name -->
+							<td>{{ expense.category.name }}</td> <!-- Correctly accessing the category name -->
 							<td>{{ expense.amount }}</td>
-							<td>{{ expense.currency }}</td> <!-- New column for Currency -->
+							<td>{{ expense.currency }}</td> <!-- Currency -->
 							<td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
-							<td>{{ expense.recurring }}</td> <!-- New column for Recurring Payment -->
+							<td>{{ expense.recurring }}</td> <!-- Recurring Payment -->
+							
 							<td>
 								<form action="{{ url_for('delete_expense', id=expense.id) }}" method="post">
-									<button type="submit">Delete</button>
+									<button class="delete-btn">Delete</button>
 								</form>
 							</td>
 						</tr>
 						{% endfor %}
 					</tbody>
 					
+					
 				</table>
-				<div class="text-center mt-4">
-					<button class="btn btn-primary">Load more</button>
-				</div>
 				
 			</div>
 
@@ -176,24 +177,20 @@
 		</script>
 		<script>
 			function filterByCategory() {
-				// Get the selected category from the dropdown
-				const selectedCategory = document.getElementById('select-category').value;
-		
-				// Get all the rows from your table
-				const rows = document.querySelectorAll('#expense-table tr');
-		
-				// Loop over each row and display/hide based on category
+				const selectedCategoryId = document.getElementById('filter-category-dropdown').value;
+				const rows = document.querySelectorAll('#expense-table tbody tr');
+
 				rows.forEach(row => {
-					// Category is in the second cell of each row (index 1, as indexing starts from 0)
-					const cellCategory = row.cells[1].textContent;
-		
-					if (selectedCategory === "All" || cellCategory === selectedCategory) {
-						row.style.display = ""; // display the row
+					// Use dataset to access data attributes
+					const categoryId = row.dataset.categoryId;
+					if (selectedCategoryId === "all" || categoryId === selectedCategoryId) {
+						row.style.display = "";
 					} else {
-						row.style.display = "none"; // hide the row
+						row.style.display = "none";
 					}
 				});
 			}
+
 		</script>
 		
 		

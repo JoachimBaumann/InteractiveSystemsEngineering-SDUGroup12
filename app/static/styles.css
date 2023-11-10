@@ -1,87 +1,95 @@
+/* Resetting some default styles */
+body, h1, h2, a, p {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+/* General styles for the body */
 body {
     display: flex;
-    justify-content: center; /* Horizontal centering */
-    align-items: center;     /* Vertical centering */
-    min-height: 100vh;      /* Takes the full height of the viewport */
-    margin: 0;               /* Resets default margin */
-} 
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
 
+/* Styling for the Canvas chart */
 canvas#myChart {
-	max-height: 500px;
-	max-width: 400px;
-	margin: 0 auto;
+    max-height: 500px;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
+/* Grid System */
 .col-md-6 {
-    padding: 0 15px; /* This adds some space between the columns */
+    padding: 0 15px;
 }
-
 .row {
     display: flex;
-    align-items: center; /* This centers the children vertically */
+    align-items: center;
 }
 
+/* Heading styles */
 h2.text-center {
-    font-family: 'Arial', sans-serif; /* Using Arial font, but you can choose any font you like */
-    color: #333; /* A dark gray color for the text */
-    border-bottom: 2px solid #007BFF; /* A blue underline */
-    display: inline-block; /* Makes the border-bottom only as wide as the text */
-    margin: auto; /* Centers the inline-block element */
-    padding: 8px; /* Adds some space between the text and the underline */
+    color: #333;
+    border-bottom: 2px solid #007BFF;
+    display: inline-block;
+    margin: auto;
+    padding: 8px;
 }
 
-
+/* Main container styles */
 .container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100%;  /* Ensures the container takes the full height of its parent */
-    padding-top: 0;
+    height: 100%;
 }
 
+/* Expense container styles */
 .expense-container {
     background-color: #ffffff;
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
-    max-width: 500px; /* Adjust to fit your design */
-    margin: 20px auto; /* Centers the container */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 20px auto;
 }
 
+/* Input fields and labels */
 input[type="text"], select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 10px; 
-    font-size: 16px; 
+    margin-bottom: 10px;
+    font-size: 16px;
 }
-
 input[type="submit"] {
-    background-color: #4CAF50; 
+    background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
 }
-
 input[type="submit"]:hover {
     background-color: #45a049;
 }
-
 label {
     font-weight: bold;
     margin-bottom: 5px;
-    display: block; /* Makes the label display above the input field */
+    display: block;
 }
 
+/* Radio input styles */
 input[type="radio"] {
     margin-right: 5px;
 }
 
-/* General styles for the navbar */
+/* Navbar styles */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -89,22 +97,29 @@ input[type="radio"] {
     padding: 10px 50px;
     background-color: #f5f5f5;
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
-/* Styles for the Monbud logo */
+/* Logo and Link styles */
+.logo, .other-logo {
+    text-decoration: none;
+}
 .logo {
     font-size: 24px;
     font-weight: bold;
     color: #0099cc;
-    text-decoration: none;
 }
-
-/* Styles for the nav-links */
+.other-logo {
+    font-size: 14px;
+    color: gray;
+}
 .nav-links {
     display: flex;
     gap: 20px;
 }
-
 .nav-links a {
     text-decoration: none;
     color: black;
@@ -112,142 +127,225 @@ input[type="radio"] {
     border-radius: 5px;
     transition: background-color 0.3s;
 }
-
 .nav-links a:hover {
     background-color: #e0e0e0;
 }
 
-/* Styles for the other logo (by graphic) */
-.other-logo {
-    font-size: 14px;
-    text-decoration: none;
-    color: gray;
-}
-
-/* General styles for the navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 50px;
-    background-color: #f5f5f5;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Styles for the Monbud logo */
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #0099cc;
-    text-decoration: none;
-}
-
-/* Styles for the nav-links */
-.nav-links {
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.nav-links a:hover {
-    background-color: #e0e0e0;
-}
-
-/* Styles for the other logo (by graphic) */
-.other-logo {
-    font-size: 14px;
-    text-decoration: none;
-    color: gray;
-}
-
-/* Reset some default styles */
-body, h1, a {
-    margin: 0;
-    padding: 0;
-}
-
-/* Style the navigation bar */
-.navbar {
-    overflow: hidden;
-    background-color: #333;
-    position: fixed; /* Fixed position */
-    top: 0; /* Stay at the top */
-    width: 100%; /* Full width */
-    z-index: 1000; /* Stay on top of other elements */
-}
-
-/* Main content */
+/* Main content padding */
 .content {
     padding: 16px;
-    padding-top: 50px; /* Add padding to the top to avoid content being hidden behind the navbar */
+    padding-top: 50px;
 }
 
-/* Navigation links */
-.navbar {
+/* Button styling */
+.delete-btn {
+    background: linear-gradient(to bottom, #FF6347, #FF4500);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+}
+.delete-btn:hover {
+    background: linear-gradient(to bottom, #FF4500, #FF6347);
+}
+
+/* Table styles */
+.table-expenses {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-expenses th, .table-expenses td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+.table-expenses th {
+    background-color: #333333;
+    color: white;
+}
+.table-expenses tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+.table-expenses tr:hover {
+    background-color: #f5f5f5;
+}
+.table-expenses tr:last-child td {
+    border-bottom: none;
+}
+
+.login-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 50px;
-    background-color: #f5f5f5;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    margin: 0 auto;
+    padding: 50px 0;
 }
 
-/* Styles for the Monbud logo */
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #0099cc;
-    text-decoration: none;
+.brand-section {
+    flex: 1;
+    padding-right: 30px;
 }
 
-
-/* Change the color of links on hover */
-.navbar a:hover {
-    background-color: #ddd;
-    color: black;
+.brand-section img {
+    max-width: 150px;
 }
 
-/* Main content */
-.content {
-    padding: 16px;
+.provider-section {
+    flex: 1;
+    padding-left: 30px;
 }
 
-/* Clear floats */
-.clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
+h2 {
+    margin-bottom: 20px;
+    color: #333;
 }
 
-
-/* Styles for the nav-links */
-.nav-links {
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: black;
-    padding: 5px 10px;
+.login-btn {
+    display: block;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s;
 }
 
-.nav-links a:hover {
-    background-color: #e0e0e0;
+.google-btn {
+    background-color: #4285F4;
+    color: white;
 }
 
-/* Styles for the other logo (by graphic) */
-.other-logo {
-    font-size: 14px;
-    text-decoration: none;
-    color: gray;
+.github-btn {
+    background-color: #24292E;
+    color: white;
 }
+
+.facebook-btn {
+    background-color: #1877F2;
+    color: white;
+}
+
+.login-btn:hover {
+    opacity: 0.8;
+}
+
+
+.login-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-logo {
+    width: 100%;
+    height: auto;
+    max-height: 100vh;
+}
+
+.login-buttons button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Add colors for each button */
+.login-buttons button:nth-child(1) { background-color: #4285F4; color: #fff; } /* Google */
+.login-buttons button:nth-child(2) { background-color: #24292E; color: #fff; } /* Github */
+.login-buttons button:nth-child(3) { background-color: #1877F2; color: #fff; } /* Facebook */
+
+.login-container {
+    display: flex; /* This will arrange its children (logo and content) side by side */
+    height: 100vh; /* Full height of the viewport */
+}
+
+.logo-container {
+    flex: 1;
+    display: flex; 
+    justify-content: center;
+    align-items: center; 
+    background-color: #f5f5f5; /* Optional: Use this if you want a background color for the logo section */
+}
+
+.content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-left: 50px; /* Add some spacing to the left of the text */
+}
+
+.login-buttons {
+    display: flex;
+    flex-direction: column; /* Stacks the buttons vertically */
+    gap: 10px; /* Gives space between the buttons */
+}
+
+h1 {
+    margin-bottom: 20px; /* Adds space below the h1 */
+}
+
+p {
+    margin-bottom: 30px; /* Adds more space below the paragraph */
+}
+
+
+/* Move the "Welcome back..." text up */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+}
+
+/* Increase the size of "Login with your preferred provider" text */
+p {
+    font-size: 20px; 
+}
+
+.overview-container {
+    font-family: Arial, sans-serif;
+}
+
+.filters {
+    margin-bottom: 20px;
+}
+
+.summary div {
+    margin: 5px 0;
+}
+
+.graph {
+    border: 1px solid #000;
+    margin: 10px 0;
+    height: 150px; /* Example height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add more styles according to your design */
+/* styles.css */
+
+.overview-header {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 10px; /* Adjust the space between items */
+  }
+  
+/* Assuming styles.css is your stylesheet file */
+
+.summary {
+    display: flex; /* This will arrange the child divs side by side */
+    justify-content: space-between; /* This will distribute space between the divs */
+    align-items: center; /* This will center align the items vertically */
+    padding: 10px 0; /* Gives some padding above and below the summary line */
+}
+
