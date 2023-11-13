@@ -3,22 +3,9 @@
 {% block title %}Overview{% endblock %}
 
 {% block content %}
-    
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overview - Budget App</title>
-    <!-- Link to your CSS file -->
-    <link rel="stylesheet" href="styles.css">
-    <script src="{{ url_for('static', filename='overview.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
     <div class="overview-container">
         <h2>Overview</h2>
-        <!-- overview.html -->
+        <!-- Content specific to overview -->
 
         <div class="overview-header">
             <label for="category-select">Category:</label>
@@ -36,12 +23,10 @@
             <input type="date" id="to-date" name="to">
         </div>
   
-        
         <div class="summary">
             <div>Budget: <span id="budget">--</span> ↑</div>
             <div>Expenses: <span id="expenses">--</span> ↓</div>
             <div>Remainder: <span id="remainder">--</span> →</div>
-
         </div>
         
         <div class="graphs">
@@ -50,12 +35,6 @@
 
             <!-- Forecast spending chart -->
             <canvas id="forecastSpendingChart" width="400" height="400"></canvas>
-
         </div>
     </div>
-
-</body>
-</html>
-
 {% endblock %}
-

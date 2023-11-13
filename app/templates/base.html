@@ -17,11 +17,12 @@
             <a href="{{ url_for('expenses') }}">Expenses</a>
         </div>
         <a href="{{ url_for('logout') }}" class="logo">Logout</a>
-    </div>
-    
+    </div>    
     
         {% block content %}
         {% endblock %}
-
+          <!-- JavaScript files at the end of body -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='overview.js') }}"></script>
 </body>
 </html>

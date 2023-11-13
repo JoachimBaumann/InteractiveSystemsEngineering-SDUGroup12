@@ -2,49 +2,17 @@ from flask import render_template, request, redirect, url_for, flash, jsonify
 from app import app, db
 from app.models import Expense, Category
 from sqlalchemy.sql import func
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy.orm import joinedload
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import logging
 
 
 @app.route('/')
 def index():
     return render_template('login.html')
 
-
-
-@app.route("/overview")
-def overview():
-    # Query all categories from the database
-    categories = Category.query.order_by(Category.name).all()
-    
-    # Fetch the default "All Categories" data
-    all_categories_data = get_all_categories_data().get_json()
-    
-    # Set up default date range (e.g., current month)
-    start_date = datetime.now().replace(day=1)
-    end_date = (start_date + relativedelta(months=1)) - timedelta(days=1)
-    
-    # Get initial in-progress spending data
-    in_progress_data = calculate_in_progress_spending(start_date, end_date, None)
-
-    # Get initial forecast spending data
-    forecast_data = calculate_forecast_spending(start_date, end_date, None)
-
-    # Prepare your context data for the template, including the initial chart data
-    context = {
-        'categories': categories,
-        'totalBudget': all_categories_data['totalBudget'],
-        'totalExpenses': all_categories_data['totalExpenses'],
-        'totalRemainder': all_categories_data['totalRemainder'],
-        'inProgressLabels': in_progress_data['labels'],
-        'inProgressValues': in_progress_data['values'],
-        'forecastLabels': forecast_data['labels'],
-        'forecastValues': forecast_data['values'],
-    }
-    # Pass the context to the template
-    return render_template("overview.html", **context, in_progress_data=in_progress_data, forecast_data=forecast_data)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -193,168 +161,128 @@ def expenses():
     expenses = Expense.query.all()  # If you want to list all expenses on the same page.
     return render_template("expenses.html", categories=categories, expenses=expenses)
 
-# This is an example in Python using Flask
+# This is an example in Python using Flask*----------------------------------------------------------------------------------------
 
-@app.route('/get-category-data/<int:category_id>')
-def get_category_data(category_id):
-    # Fetch the category using the category_id
-    category = Category.query.get_or_404(category_id)
-
-    # Calculate the total expenses for this category
-    total_expenses = db.session.query(func.sum(Expense.amount)).filter(Expense.category_id == category_id).scalar()
-    total_expenses = total_expenses or 0  # if there are no expenses, default to 0
-
-    # Calculate the remainder of the budget
-    remainder = category.budget - total_expenses
-
-    # Prepare the data dictionary with actual values
-    data = {
-        'budget': category.budget,
-        'expenses': total_expenses,
-        'remainder': remainder
-    }
-
-    return jsonify(data)
-
-
-@app.route('/get-all-categories-data')
-def get_all_categories_data():
-    # Query that sums all budgets for all categories
-    total_budget = db.session.query(db.func.sum(Category.budget)).scalar() or 0
-    # Query that sums all expenses for all categories by joining Expense and Category tables
-    total_expenses = db.session.query(db.func.sum(Expense.amount)).scalar() or 0
-    # Calculate the remainder
-    total_remainder = total_budget - total_expenses
-
-    data = {
-        'totalBudget': total_budget,
-        'totalExpenses': total_expenses,
-        'totalRemainder': total_remainder
-    }
-    return jsonify(data)
-
-
-@app.route('/get-in-progress-spending', methods=['POST'])
-def get_in_progress_spending():
-    data = request.get_json()
-    start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
-    end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
-    category_id = data.get('categoryId')
-
-    spending_data = calculate_in_progress_spending(start_date, end_date, category_id)
-    return jsonify(spending_data)
-
-@app.route('/get-forecast-spending', methods=['POST'])
-def get_forecast_spending():
-    data = request.get_json()
-    start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
-    end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
-    category_id = data.get('categoryId')
-
-    # Fetch past spending data for the forecasting
-    past_spending_query = db.session.query(
-        Expense.date, func.sum(Expense.amount).label('amount')
-    ).group_by(Expense.date)
-
-    if category_id is not None:
-        past_spending_query = past_spending_query.filter(Expense.category_id == category_id)
-
-    past_spending = past_spending_query.all()
-    past_dates = [record.date for record in past_spending]
-    past_values = [float(record.amount) for record in past_spending]
-    
-    # Calculate the average daily spend
-    if past_dates:
-        total_days = (max(past_dates) - min(past_dates)).days + 1
-        average_daily_spend = sum(past_values) / total_days
-    else:
-        average_daily_spend = 0
-
-    # Forecast future spending based on average daily spend
-    forecast_spending = []
-    for i in range((end_date - start_date).days + 1):
-        forecast_date = start_date + timedelta(days=i)
-        forecast_spending.append({
-            'date': forecast_date.strftime('%Y-%m-%d'),
-            'total': average_daily_spend  # Simple forecast based on average daily spend
-        })
-
-    labels = [item['date'] for item in forecast_spending]
-    values = [item['total'] for item in forecast_spending]
-
-    return jsonify({'labels': labels, 'values': values})
-
-
-def calculate_in_progress_spending(start_date, end_date, category_id):
+def get_spending_data(start_date, end_date, category_id=None):
     query = db.session.query(
-        Expense.date, func.sum(Expense.amount).label('total')
-    ).group_by(Expense.date)
-
+        Expense.date, func.sum(Expense.amount).label('amount')
+    ).filter(
+        Expense.date >= start_date, Expense.date <= end_date
+    )
     if category_id is not None:
         query = query.filter(Expense.category_id == category_id)
 
-    in_progress_spending = query.filter(
-        Expense.date >= start_date, 
-        Expense.date <= end_date
-    ).all()
+    return query.group_by(Expense.date).all()
 
-    labels = [result.date.strftime('%Y-%m-%d') for result in in_progress_spending]
-    values = [result.total for result in in_progress_spending]
+def calculate_forecast_spending(start_date, end_date, category_id=None):
+    # Start of the current month
+    current_month_start = date.today().replace(day=1)
 
-    return {'labels': labels, 'values': values}
+    # Get spending data for the current month up to yesterday
+    past_spending_data = get_spending_data(current_month_start, date.today() - timedelta(days=1), category_id)
 
-def calculate_forecast_spending(start_date, end_date, category_id):
-    # Replace this part with your actual forecast logic
-    forecast_spending = [
-        {'date': start_date, 'total': 100},
-        {'date': end_date, 'total': 150}
-    ]
+    # Calculate total spending and average daily spending
+    total_spending = sum([record.amount for record in past_spending_data])
+    num_days_past = (date.today() - current_month_start).days
+    average_daily_spending = total_spending / num_days_past if num_days_past > 0 else 0
 
-    labels = [item['date'].strftime('%Y-%m-%d') for item in forecast_spending]
-    values = [item['total'] for item in forecast_spending]
+    # Create forecast data for the entire current month
+    total_days_in_month = (date(current_month_start.year, current_month_start.month + 1, 1) - timedelta(days=1)).day
+    forecast_spending = 0
+    forecast_values = []
 
-    return {'labels': labels, 'values': values}
+    for day in range(1, total_days_in_month + 1):
+        forecast_spending += average_daily_spending
+        forecast_values.append(forecast_spending)
 
+    # Generate labels for the entire current month
+    labels = [(current_month_start + timedelta(days=i - 1)).strftime('%Y-%m-%d') for i in range(1, total_days_in_month + 1)]
 
-@app.route('/get-date-range-data', methods=['GET'])
-def get_date_range_data():
-    from_date = request.args.get('from')
-    to_date = request.args.get('to')
-    category_id = request.args.get('categoryId', default=None, type=int)
+    return {'labels': labels, 'values': forecast_values}
 
+@app.route('/get-forecast-spending', methods=['POST'])
+def get_forecast_spending():
     try:
-        from_date = datetime.strptime(from_date, '%Y-%m-%d')
-        to_date = datetime.strptime(to_date, '%Y-%m-%d')
+        data = request.get_json()
+        category_id = data.get('categoryId')
+
+        # Set start and end dates to cover the entire current month
+        start_date = date.today().replace(day=1)
+        end_date = date(start_date.year, start_date.month + 1, 1) - timedelta(days=1)
+
+        forecast_data = calculate_forecast_spending(start_date, end_date, category_id)
+
+        return jsonify(forecast_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/get-category-data/<int:category_id>')
+def get_category_data(category_id):
+    try:
+        category = Category.query.get(category_id)
+        if not category:
+            return jsonify({'error': f'Category with ID {category_id} not found'}), 404
+        total_expenses = db.session.query(func.sum(Expense.amount)).filter(Expense.category_id == category_id).scalar() or 0
+        remainder = category.budget - total_expenses
+        data = {'budget': category.budget, 'expenses': total_expenses, 'remainder': remainder}
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get-all-categories-data')
+def get_all_categories_data():
+    try:
+        total_budget = db.session.query(func.sum(Category.budget)).scalar() or 0
+        total_expenses = db.session.query(func.sum(Expense.amount)).scalar() or 0
+        total_remainder = total_budget - total_expenses
+        data = {'totalBudget': total_budget, 'totalExpenses': total_expenses, 'totalRemainder': total_remainder}
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get-in-progress-spending', methods=['POST'])
+def get_in_progress_spending():
+    try:
+        data = request.get_json()
+        start_date = datetime.strptime(data['startDate'], '%Y-%m-%d')
+        end_date = datetime.strptime(data['endDate'], '%Y-%m-%d')
+        category_id = data.get('categoryId')
+        spending_data = get_spending_data(start_date, end_date, category_id)
+        labels = [record.date.strftime('%Y-%m-%d') for record in spending_data]
+        values = [float(record.amount) for record in spending_data]
+        return jsonify({'labels': labels, 'values': values})
     except ValueError:
         return jsonify({'error': 'Invalid date format. Please use YYYY-MM-DD.'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-    in_progress_spending_query = db.session.query(
-        Expense.date, func.sum(Expense.amount).label('amount')
-    ).filter(
-        Expense.date >= from_date,
-        Expense.date <= to_date
-    )
 
-    # Apply category filter if provided
-    if category_id is not None:
-        in_progress_spending_query = in_progress_spending_query.filter(Expense.category_id == category_id)
+@app.route('/overview')
+def overview():
+    try:
+        categories = Category.query.order_by(Category.name).all()
+        all_categories_data = get_all_categories_data().get_json()
 
-    in_progress_spending_query = in_progress_spending_query.group_by(Expense.date).all()
+        start_date = datetime.now().replace(day=1)
+        end_date = start_date + relativedelta(months=1, days=-1)
 
-    in_progress_data = {
-        'labels': [record.date.strftime('%Y-%m-%d') for record in in_progress_spending_query],
-        'values': [float(record.amount) for record in in_progress_spending_query]
-    }
+        in_progress_data = get_spending_data(start_date, end_date)
+        # Ensure calculate_forecast_spending is implemented or handle it appropriately
+        forecast_data = calculate_forecast_spending(start_date, end_date)
+        context = {
+        'categories': categories,
+        'totalBudget': all_categories_data['totalBudget'],
+        'totalExpenses': all_categories_data['totalExpenses'],
+        'totalRemainder': all_categories_data['totalRemainder'],
+        'inProgressLabels': [record.date.strftime('%Y-%m-%d') for record in in_progress_data],
+        'inProgressValues': [float(record.amount) for record in in_progress_data],
+        # Assuming calculate_forecast_spending returns a dictionary with labels and values
+        'forecastLabels': forecast_data['labels'] if forecast_data else [],
+        'forecastValues': forecast_data['values'] if forecast_data else []
+        }
 
-    # Implement your forecast logic here and populate forecast_data accordingly
-    forecast_data = {
-        'labels': [(from_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range((to_date - from_date).days + 1)],
-        'values': [0 for _ in range((to_date - from_date).days + 1)]  # Replace 0 with actual forecasted values
-    }
-
-    combined_data = {
-        'inProgressSpending': in_progress_data,
-        'forecastSpending': forecast_data
-    }
-
-    return jsonify(combined_data)
+        return render_template("overview.html", **context)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
