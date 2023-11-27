@@ -22,7 +22,7 @@ def step_impl(context):
     # This is a complex step as it involves interacting with Google's login page
     # which is protected against automated scripts.
     # For demonstration, we'll just wait and assume redirection.
-    time.sleep(5)  # Wait for redirection, this is not reliable for real tests
+    time.sleep(1)  # Wait for redirection, this is not reliable for real tests
 
 
 @given("the user is on the Google login page")

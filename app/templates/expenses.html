@@ -1,197 +1,252 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}MyBudgetApp{% endblock %} {% block
+content %}
+<div class="container-fluid">
+	{% with messages = get_flashed_messages(with_categories=true) %} {% if
+	messages %} {% for category, message in messages %}
+	<div class="alert alert-{{ category }}">{{ message }}</div>
+	{% endfor %} {% endif %} {% endwith %}
 
-{% block title %}MyBudgetApp{% endblock %}
+	<!-- Your content goes here -->
 
-{% block content %}
-		<div class="container-fluid">
-			{% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-			  {% for category, message in messages %}
-				<div class="alert alert-{{ category }}">{{ message }}</div>
-			  {% endfor %}
-			{% endif %}
-		  {% endwith %}
-		  
-
-			<!-- Your content goes here -->
-
-				<div class="row">
-
-					<div class="mt-5 col-md-6">
-						<h2 class="text-center my-4">Add new expense</h2>
-						<div class="card p-4">
-							<form action="/add_expense" method="post" class="text-center">
-								<div class="form-group">
-									<label for="budget">Category</label>
-									<select name="category" id="category-dropdown">
-										{% for category in categories %}
-										<option value="{{ category.id }}">{{ category.name }}</option>
-										{% endfor %}
-									</select>
-									  
-								</div>
-								<div class="form-group">
-									<label for="name">Name</label>
-									<input type="text" class="form-control" id="name" placeholder="Monster Energy" name="name" required>
-								</div>
-								<div class="form-group">
-									<label for="amount">Amount</label>
-									<input type="number" class="form-control" id="amount" placeholder="14 kr" name="amount" required>
-								</div>
-								<div class="form-group">
-									<label for="currency">Currency</label>
-									<select class="form-control" id="currency" name="currency">
-										<option value="DKK">Danish Kroner</option>
-										<option value="EU">EUR</option>
-										<option value="dollar">USD</option>
-										<!-- Add more currencies as needed -->
-									</select>
-								</div>
-								<div class="form-group">
-									<label for="expenseDate">Date</label>
-									<input type="date" name="Date" required>
-								</div>
-								<div class="form-group row">
-									<label class="col-sm-4 col-form-label">Recurring Payment:</label>
-									<div class="col-sm-8">
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="radio" id="yes" name="recurring" value="Yes">
-											<label class="form-check-label" for="yes">Yes</label>
-										</div>
-										<div class="form-check form-check-inline">
-											<input class="form-check-input" type="radio" id="no" name="recurring" value="No">
-											<label class="form-check-label" for="no">No</label>
-										</div>
-									</div>
-								</div>
-								
-								<div class="form-group">
-									<input type="submit" value="Submit" class="btn btn-primary">
-								</div>
-							</form>
+	<div class="row">
+		<div class="mt-5 col-md-6">
+			<h2 class="text-center my-4">Add new expense</h2>
+			<div class="card p-4">
+				<form action="/add_expense" method="post" class="text-center">
+					<div class="form-group">
+						<label for="budget">Category</label>
+						<select name="category" id="category-dropdown">
+							{% for category in categories %}
+							<option value="{{ category.id }}">
+								{{ category.name }}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="name">Name</label>
+						<input
+							type="text"
+							class="form-control"
+							id="name"
+							placeholder="Monster Energy"
+							name="name"
+							required
+						/>
+					</div>
+					<div class="form-group">
+						<label for="amount">Amount</label>
+						<input
+							type="number"
+							class="form-control"
+							id="amount"
+							placeholder="14 kr"
+							name="amount"
+							required
+						/>
+					</div>
+					<div class="form-group">
+						<label for="currency">Currency</label>
+						<select
+							class="form-control"
+							id="currency"
+							name="currency"
+						>
+							<option value="DKK">Danish Kroner</option>
+							<option value="EU">EUR</option>
+							<option value="dollar">USD</option>
+							<!-- Add more currencies as needed -->
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="expenseDate">Date</label>
+						<input
+							type="date"
+							id="expenseDate"
+							name="Date"
+							required
+						/>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-4 col-form-label"
+							>Recurring Payment:</label
+						>
+						<div class="col-sm-8">
+							<div class="form-check form-check-inline">
+								<input
+									class="form-check-input"
+									type="radio"
+									id="yes"
+									name="recurring"
+									value="Yes"
+								/>
+								<label class="form-check-label" for="yes"
+									>Yes</label
+								>
+							</div>
+							<div class="form-check form-check-inline">
+								<input
+									class="form-check-input"
+									type="radio"
+									id="no"
+									name="recurring"
+									value="No"
+								/>
+								<label class="form-check-label" for="no"
+									>No</label
+								>
+							</div>
 						</div>
 					</div>
-					<div class="col-md-6">
-						<canvas id="myChart"></canvas>
+
+					<div class="form-group">
+						<input
+							type="submit"
+							value="Submit"
+							class="btn btn-primary"
+						/>
 					</div>
-				</div>
-			
-				<h2 class="text-center my-4">Per category history</h2>
-				<div class="mb-4">
-					<label for="select-category" class="d-block text-center mb-2">Category</label>
-					<select name="category" id="filter-category-dropdown" onchange="filterByCategory()">
-						<option value="all">All Categories</option>
-						{% for category in categories %}
-						<option value="{{ category.id }}">{{ category.name }}</option>
-						{% endfor %}
-					  </select>
-				</div>
-			
-				<table class="table-expenses" id="expense-table">
-					<thead>
-						<tr>
-							<th>Name</th> <!-- New column for Expense Name -->
-							<th>Category</th>
-							<th>Amount</th>
-							<th>Currency</th> <!-- New column for Currency -->
-							<th>Date</th>
-							<th>Recurring</th> <!-- New column for Recurring Payment -->
-							<th>Action</th> <!-- To label the delete button column -->
-						</tr>
-					</thead>
-					
-					<tbody>
-						{% for expense in expenses %}
-						<tr data-category-id="{{ expense.category.id }}">
-							<td>{{ expense.name }}</td> <!-- Expense Name -->
-							<td>{{ expense.category.name }}</td> <!-- Correctly accessing the category name -->
-							<td>{{ expense.amount }}</td>
-							<td>{{ expense.currency }}</td> <!-- Currency -->
-							<td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
-							<td>{{ expense.recurring }}</td> <!-- Recurring Payment -->
-							
-							<td>
-								<form action="{{ url_for('delete_expense', id=expense.id) }}" method="post">
-									<button class="delete-btn">Delete</button>
-								</form>
-							</td>
-						</tr>
-						{% endfor %}
-					</tbody>
-					
-					
-				</table>
-				
+				</form>
 			</div>
+		</div>
+		<div class="col-md-6">
+			<canvas id="myChart"></canvas>
+		</div>
+	</div>
 
-		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<h2 class="text-center my-4">Per category history</h2>
+	<div class="mb-4">
+		<label for="select-category" class="d-block text-center mb-2"
+			>Category</label
+		>
+		<select
+			name="category"
+			id="filter-category-dropdown"
+			onchange="filterByCategory()"
+		>
+			<option value="all">All Categories</option>
+			{% for category in categories %}
+			<option value="{{ category.id }}">{{ category.name }}</option>
+			{% endfor %}
+		</select>
+	</div>
 
-		<!-- Chart.js library -->
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<table class="table-expenses" id="expense-table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<!-- New column for Expense Name -->
+				<th>Category</th>
+				<th>Amount</th>
+				<th>Currency</th>
+				<!-- New column for Currency -->
+				<th>Date</th>
+				<th>Recurring</th>
+				<!-- New column for Recurring Payment -->
+				<th>Action</th>
+				<!-- To label the delete button column -->
+			</tr>
+		</thead>
 
-		<!-- Moment.js library (dependency for Pikaday) -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+		<tbody>
+			{% for expense in expenses %}
+			<tr data-category-id="{{ expense.category.id }}">
+				<td>{{ expense.name }}</td>
+				<!-- Expense Name -->
+				<td>{{ expense.category.name }}</td>
+				<!-- Correctly accessing the category name -->
+				<td>{{ expense.amount }}</td>
+				<td>{{ expense.currency }}</td>
+				<!-- Currency -->
+				<td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+				<td>{{ expense.recurring }}</td>
+				<!-- Recurring Payment -->
 
-		<!-- Pikaday library -->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+				<td>
+					<form
+						action="{{ url_for('delete_expense', id=expense.id) }}"
+						method="post"
+					>
+						<button class="delete-btn">Delete</button>
+					</form>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
 
-		<!-- Bootstrap JS (should be after jQuery) -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-		<!-- You can include your JavaScript logic/scripts here -->
-		<script>
-			let picker = new Pikaday({
-				field: document.getElementById('datepicker'),
-			})
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-			$.get('/expense_data', function (data) {
-				var ctx = document.getElementById('myChart').getContext('2d')
-				var myPieChart = new Chart(ctx, {
-					type: 'pie',
-					data: {
-						labels: data.categories,
-						datasets: [
-							{
-								data: data.amounts,
-								backgroundColor: [
-									'red',
-									'blue',
-									'yellow',
-									'green',
-									'purple',
-								], // Add more colors if you have more categories
-							},
-						],
+<!-- Moment.js library (dependency for Pikaday) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<!-- Pikaday library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
+
+<!-- Bootstrap JS (should be after jQuery) -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- You can include your JavaScript logic/scripts here -->
+<script>
+	let picker = new Pikaday({
+		field: document.getElementById('datepicker'),
+	})
+
+	$.get('/expense_data', function (data) {
+		var ctx = document.getElementById('myChart').getContext('2d')
+		var myPieChart = new Chart(ctx, {
+			type: 'pie',
+			data: {
+				labels: data.categories,
+				datasets: [
+					{
+						data: data.amounts,
+						backgroundColor: [
+							'red',
+							'blue',
+							'yellow',
+							'green',
+							'purple',
+						], // Add more colors if you have more categories
 					},
-					options: {
-						legend: {
-							position: 'top',
-							labels: {
-								padding: 0,
-							},
-						},
+				],
+			},
+			options: {
+				legend: {
+					position: 'top',
+					labels: {
+						padding: 0,
 					},
-				})
-			})
-		</script>
-		<script>
-			function filterByCategory() {
-				const selectedCategoryId = document.getElementById('filter-category-dropdown').value;
-				const rows = document.querySelectorAll('#expense-table tbody tr');
+				},
+			},
+		})
+	})
+</script>
+<script>
+	function filterByCategory() {
+		const selectedCategoryId = document.getElementById(
+			'filter-category-dropdown'
+		).value
+		const rows = document.querySelectorAll('#expense-table tbody tr')
 
-				rows.forEach(row => {
-					// Use dataset to access data attributes
-					const categoryId = row.dataset.categoryId;
-					if (selectedCategoryId === "all" || categoryId === selectedCategoryId) {
-						row.style.display = "";
-					} else {
-						row.style.display = "none";
-					}
-				});
+		rows.forEach(row => {
+			// Use dataset to access data attributes
+			const categoryId = row.dataset.categoryId
+			if (
+				selectedCategoryId === 'all' ||
+				categoryId === selectedCategoryId
+			) {
+				row.style.display = ''
+			} else {
+				row.style.display = 'none'
 			}
+		})
+	}
+</script>
 
-		</script>
-		
-		
 {% endblock %}
