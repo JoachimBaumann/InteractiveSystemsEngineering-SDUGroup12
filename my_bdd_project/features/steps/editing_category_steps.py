@@ -24,7 +24,7 @@ def step_given_navigate_to_categories(context):
     pass
 
 
-@when("sees a list of their saved categories")
+@given("sees a list of their saved categories")
 def step_when_sees_saved_categories(context):
     # Verify that the table of saved categories is displayed
     table = context.driver.find_element(By.CLASS_NAME, "table")
