@@ -5,12 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
 
-@given('the user is on the "Expenses" tab')
-def step_impl(context):
-    # Navigate to the expenses page
-    context.driver.get(context.base_url + "/expenses")
-
-
 @when(
     'the user selects the "utilities" category from the "Per category history" dropdown'
 )
@@ -38,17 +32,18 @@ def step_impl(context):
 
 @then("the system displays the list of expenses under this category")
 def step_impl(context):
-    # Wait for the table to update with the filtered results
     try:
         WebDriverWait(context.driver, 10).until(
-            EC.presence_of_element_located(
-                (
-                    By.XPATH,
-                    "//table[@id='expense-table']/tbody/tr[contains(@data-category-id, 'utilities')]",
+            lambda driver: any(
+                "utilities" in row.text
+                for row in driver.find_elements(
+                    By.XPATH, "//table[@id='expense-table']/tbody/tr"
                 )
             )
         )
     except TimeoutException:
+        all_rows = context.driver.find_elements(
+            By.XPATH, "//table[@id='expense-table']/tbody/tr"
+        )
+        print(f"Debug: Rows found: {[row.text for row in all_rows]}")
         assert False, "Timeout waiting for the expenses table to update"
-
-    # Additional checks can be added here if needed
